@@ -53,15 +53,25 @@ foreach ($renameCore as $old => $new) {
         }
     }    
 }
-foreach (['ArrayObject', 'Iterator', 'Traversable'] as $class) {
+foreach (['ArrayIterator', 'ArrayObject', 'Iterator', 'Traversable'] as $class) {
     $pregRenames["|([\'\"])([\\\\]?$class)([\'\":])|"] = "\\1\\\\\\\\$class\\3";
-    $pregRenames["|([\\s\\(])([\\\\]?$class)([\\s\\-.:,\\)])|"] = "\\1\\\\$class\\3";
+    $pregRenames["|([\\s\\(])([\\\\]?$class)([\\s\\-.:,\\(\\)])|"] = "\\1\\\\$class\\3";
 }
 
 $pregRenames["!(\\s+)(Zend_|ZendX_)!"] = '\\1\\\\\\2';
 $pregRenames["!(\\s+)(MUtil|Gems|Zalt|Mezzio|Laminas|Symfony)(\\W)!"] = '\\1\\\\\\2\\3';
 $pregRenames['!(namespace|use|class|interface|trait|@package)(\\s+)\\\\!'] = '\\1\\2';
 
+// Make sure the correct View Helpers can be found
+foreach (['MUtil_View_Helper', 'MUtil_Less_View_Helper', 'Gems_View_Helper'] as $helper) {
+    $newHelper = strtr($helper, '_', '\\\\');
+    $renames["'$helper'"] = "'$newHelper'";
+}
+
+// Do not remove this slash in Gems\Roles everytime
+$renames['(get_class(self::$_instanceOfSelf)!==\'\\\\Gems\\\\Roles\')'] = '(get_class(self::$_instanceOfSelf)!==\'Gems\\\\Roles\')'; 
+
+// Optional debug checks
 if (false) {
     print_r($pregRenames);
     return;

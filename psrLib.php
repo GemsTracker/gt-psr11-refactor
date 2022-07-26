@@ -76,6 +76,10 @@ function implementNameSpace(string $fileContent, string $oldClass, string $newCl
 
     $content = preg_replace('!(\\<\\?php\\s+(/\*[\s\S]*?\*/\\s+))!', "\\1namespace $namespace;\n\n", $content);
     
+    if (! str_contains($content, "\nnamespace $namespace;\n\n")) {
+        $content = preg_replace('!(\\<\\?php\\s+(declare\\(strict_types=1\\);\\s+)?)!', "\\1namespace $namespace;\n\n", $content);
+    }
+    
     return $content;
 }
 
